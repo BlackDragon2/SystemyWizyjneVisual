@@ -15,7 +15,7 @@ double** mathUtils::matrixMultiply(double value, double** matrix, int rows, int 
 	for(int i=0;i<rows;i++)
 	for(int j=0;j<columns;j++)
 		result[i][j]=matrix[i][j]*value;
-	return matrix;
+	return result;
 };
 
 double** mathUtils::matrixMultiply(double value, int** matrix, int rows, int columns)

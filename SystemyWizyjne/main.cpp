@@ -20,7 +20,7 @@ int main(int argc, const char* argv[])
 		cdl.compute(argv[1], position, std::atof(argv[3]));
 	}
 	else
-		cdl.compute("D:\\bikes\\config.txt", HORIZONTAL, 10);
+		cdl.compute("D:\\bikes\\config.txt", HORIZONTAL, 7800);
 	system("pause");
 }
 

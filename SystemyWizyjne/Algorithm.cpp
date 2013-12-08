@@ -114,7 +114,7 @@ void Algorithm::createEPI(string config)
 			for(int k=0;k<imageRows_;k++)
 				temp[k]=tab[k][j];
 			string path=dir_+baseName_+"_"+utils::to_string<int>(j)+"_0.txt";
-			fileIO::saveLine<double>(path, tab[i], imageRows_);
+			fileIO::saveLine<double>(path, temp, imageRows_);
 		}
 		utils::memFree(tab, imageRows_);
 	}

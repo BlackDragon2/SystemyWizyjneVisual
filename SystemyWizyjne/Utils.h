@@ -28,4 +28,11 @@ namespace utils
 		convert << number;
 		return convert.str();
 	};
+	template<typename T>
+	void clear2D(T** array, int rows, int columns)
+	{
+		for(int i=0;i<rows;i++)
+			for(int j=0;j<columns;j++)
+				T[i][j]=0;
+	}
 };

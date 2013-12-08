@@ -6,6 +6,7 @@ public:
 	CDL(void);
 	~CDL(void);
 	void transform(double focal);
+	void createFiles();
 private:
 	static const int PHI=1;
 	static const int GAUSSIAN_ROWS=3;
