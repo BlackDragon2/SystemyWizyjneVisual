@@ -228,3 +228,31 @@ double** graphicUtils::toGrayScale(double** matrix, int rows, int columns, GrayM
 			result[i][j]=toGray(method, graphicIO::getR(matrix[i][j]), graphicIO::getB(matrix[i][j]), graphicIO::getB(matrix[i][j]));
 	return result;
 };
+
+int** graphicUtils::range(double** matrix, int rows, int columns)
+{
+	int** result=utils::create2DInt(rows, columns);
+	double min=matrix[0][0];
+	for(int i=0;i<rows;i++)
+		for(int j=0;j<columns;j++)
+			if(min>matrix[i][j])
+				min=matrix[i][j];
+	for(int i=0;i<rows;i++)
+		for(int j=0;j<columns;j++)
+			result[i][j]=(int)(matrix[i][j]*255/min);cout<<min<<endl;
+	return result;
+};
+
+int** graphicUtils::range(int** matrix, int rows, int columns)
+{
+		int** result=utils::create2DInt(rows, columns);
+	double min=matrix[0][0];
+	for(int i=0;i<rows;i++)
+		for(int j=0;j<columns;j++)
+			if(min>matrix[i][j])
+				min=matrix[i][j];
+	for(int i=0;i<rows;i++)
+		for(int j=0;j<columns;j++)
+			result[i][j]=(int)((double)matrix[i][j]*255/min);cout<<min<<endl;
+	return result;
+};

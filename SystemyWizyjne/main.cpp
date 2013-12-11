@@ -6,7 +6,7 @@
 
 int main(int argc, const char* argv[])
 {
-	CDL cdl;
+	/*CDL cdl;
 	if(argc>1)
 	{
 		Position position;
@@ -20,7 +20,9 @@ int main(int argc, const char* argv[])
 		cdl.compute(argv[1], position, std::atof(argv[3]));
 	}
 	else
-		cdl.compute("D:\\bikes\\config.txt", HORIZONTAL, 7800);
+		cdl.compute("D:\\bikes\\config.txt", HORIZONTAL, 7800);*/
+	int row, column;
+	graphicIO::showImage(graphicIO::createImage(graphicUtils::range(fileIO::loadArray("D:\\bikes\\bikes_image_25_1.txt", row ,column), 936, 1404), 936, 1404, 1));
 	system("pause");
 }
 

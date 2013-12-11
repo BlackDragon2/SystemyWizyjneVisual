@@ -15,6 +15,8 @@ namespace graphicIO
 	inline void saveImage(int** matrix, int rows, int columns, std::string path);
 	cv::Mat createImage(int** matrix, int rows, int columns, int flag=0);
 	cv::Mat createImage(int** matrix, int rows, int columns, Position position);
+	cv::Mat createImage(double** matrix, int rows, int columns, int flag=0);
+	cv::Mat createImage(double** matrix, int rows, int columns, Position position);
 	cv::Mat createGreyscaleImage(int** matrix, int rows, int columns, GrayMethod method);
 	inline cv::Mat getImage(string path)
 	{
@@ -51,5 +53,8 @@ namespace graphicIO
 		imshow("Image", image);
 		cv::waitKey(0);
 	};
+
+	void showImage(double** array, int rows, int columns, int flag);
+	void showImage(int** array, int rows, int columns, int flag);
 };
 

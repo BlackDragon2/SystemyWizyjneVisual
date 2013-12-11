@@ -71,7 +71,7 @@ bool Algorithm::EPIExists(const char* config)
 void Algorithm::createEPI(string config)
 {
 	vector<string> data=fileIO::readFile(config);
-	cout<<"Generation started";
+	cout<<"Generation started"<<endl;
 	//generating files with EPI size
 	if(computePosition_==HORIZONTAL||computePosition_==BOTH)
 	{
@@ -95,19 +95,22 @@ void Algorithm::createEPI(string config)
 	for(int i=0;i<hImages_;i++)
 	{
 		string source=dir_+"Horizontal\\"+baseName_+utils::to_string<int>(i)+extension_;
-		double** tab=graphicUtils::toGrayScale(graphicIO::getImageInArray(graphicIO::getImage(source), imageRows_, imageColumns_), imageRows_, imageColumns_, GrayMethod::LIGHTNESS);
+		double** tempTab=graphicIO::getImageInArray(graphicIO::getImage(source), imageRows_, imageColumns_);
+		double** tab=graphicUtils::toGrayScale(tempTab, imageRows_, imageColumns_, GrayMethod::LIGHTNESS);
 		for(int j=0;j<imageRows_;j++)
 		{
 			string path=dir_+baseName_+"_"+utils::to_string<int>(j)+"_1.txt";
-			fileIO::saveLine<double>(path, tab[i], imageColumns_);
+			fileIO::saveLine<double>(path, tab[j], imageColumns_);
 		}
+		utils::memFree(tempTab, imageRows_);
 		utils::memFree(tab, imageRows_);
 	}
 	double* temp=new double[imageRows_];
 	for(int i=0;i<vImages_;i++)
 	{
 		string source=dir_+"Vertical"+baseName_+utils::to_string<int>(i)+extension_;
-		double** tab=graphicUtils::toGrayScale(graphicIO::getImageInArray(graphicIO::getImage(source), imageRows_, imageColumns_), imageRows_, imageColumns_, GrayMethod::LIGHTNESS);
+		double** tempTab=graphicIO::getImageInArray(graphicIO::getImage(source), imageRows_, imageColumns_);
+		double** tab=graphicUtils::toGrayScale(tempTab, imageRows_, imageColumns_, GrayMethod::LIGHTNESS);
 
 		for(int j=0;j<imageColumns_;j++)
 		{
@@ -116,8 +119,9 @@ void Algorithm::createEPI(string config)
 			string path=dir_+baseName_+"_"+utils::to_string<int>(j)+"_0.txt";
 			fileIO::saveLine<double>(path, temp, imageRows_);
 		}
+		utils::memFree(tempTab, imageRows_);
 		utils::memFree(tab, imageRows_);
 	}
 	delete[] temp;
-	cout<<"Generation ended";		
+	cout<<"Generation ended"<<endl;		
 }

@@ -23,18 +23,27 @@ void CDL::transform(double focal)
 	if(getComputePosition()==HORIZONTAL)
 	{
 		createFiles();
+
+		//EPI epi(EPI::createEPIPath(getDir(), getBaseName(), 50, HORIZONTAL));
+		//graphicIO::showImage(epi.getPixels(), epi.getRows(), epi.getColumns(), 1);
+
+		double** gaussian=graphicUtils::normalize(graphicUtils::GaussianKernel(PHI, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS), GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, true);
 		for(int i=0;i<getImageRows();i++)
 		{
+			cout<<"Procesing "<<i+1<<" EPI from "<<getImageRows()<<endl;
 			EPI epi(EPI::createEPIPath(getDir(), getBaseName(), i, HORIZONTAL));
 			//from [0-255] range to [0-1]
-			double** pixels=graphicUtils::pixelMultiply(double(1/255), epi.getPixels(), epi.getRows(), epi.getColumns()); 
-
+			double** pixels=graphicUtils::pixelMultiply(1.0/255.0, epi.getPixels(), epi.getRows(), epi.getColumns()); 
+	
 			double** gradientX=graphicUtils::gradient(MASKX, pixels, epi.getRows(), epi.getColumns());
 			double** gradientY=graphicUtils::gradient(MASKY, pixels, epi.getRows(), epi.getColumns());
-			double** gaussian=graphicUtils::normalize(graphicUtils::GaussianKernel(PHI, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS), GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, true);
-			Jxx=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, graphicUtils::pixelMultiply(gradientX, gradientX, epi.getRows(), epi.getColumns()), epi.getRows(), epi.getColumns());
-			Jxy=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, graphicUtils::pixelMultiply(gradientX, gradientY, epi.getRows(), epi.getColumns()), epi.getRows(), epi.getColumns());
-			Jyy=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, graphicUtils::pixelMultiply(gradientY, gradientY, epi.getRows(), epi.getColumns()), epi.getRows(), epi.getColumns());
+			double** xx=graphicUtils::pixelMultiply(gradientX, gradientX, epi.getRows(), epi.getColumns());
+			double** xy=graphicUtils::pixelMultiply(gradientX, gradientY, epi.getRows(), epi.getColumns());
+			double** yy=graphicUtils::pixelMultiply(gradientY, gradientY, epi.getRows(), epi.getColumns());//graphicIO::showImage(graphicUtils::pixelMultiply(255, pixels, epi.getRows(), epi.getColumns()), epi.getRows(), epi.getColumns(), 1);
+			
+			Jxx=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, xx, epi.getRows(), epi.getColumns());//graphicIO::showImage(graphicUtils::pixelMultiply(255, Jxx, epi.getRows(), epi.getColumns()), epi.getRows(), epi.getColumns(), 1);
+			Jxy=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, xy, epi.getRows(), epi.getColumns());
+			Jyy=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, yy, epi.getRows(), epi.getColumns());
 				
 			//equation(5)
 			double** sub=graphicUtils::pixelSubstract(Jyy, Jxx, epi.getRows(), epi.getColumns());
@@ -59,13 +68,15 @@ void CDL::transform(double focal)
 			{
 				
 				for(int j=0;j<epi.getColumns();j++)
-					message[j]=-focal*(1/tan(phi[i][j]))*255;
+					message[j]=-focal*(tan(phi[i][j]))*255;//message[j]=-focal*(1/tan(phi[i][j]))*255;
 				string file=getDir()+getBaseName()+"_image_"+utils::to_string<int>(i)+"_1.txt";
 				fileIO::saveLine(file, message, epi.getColumns());
 				file=getDir()+getBaseName()+"_r_"+utils::to_string<int>(i)+"_1.txt";
 				fileIO::saveLine(file, r[i], epi.getColumns());
 			}
-			
+			utils::memFree(xx, epi.getRows());
+			utils::memFree(xy, epi.getRows());
+			utils::memFree(yy, epi.getRows());
 			utils::memFree(dev, epi.getRows());
 			utils::memFree(sub, epi.getRows());
 			utils::memFree(mul, epi.getRows());
@@ -78,7 +89,6 @@ void CDL::transform(double focal)
 			utils::memFree(pixels, epi.getRows());
 			utils::memFree(gradientX, epi.getRows());
 			utils::memFree(gradientY, epi.getRows());
-			utils::memFree(gaussian, epi.getRows());
 			utils::memFree(Jxx, epi.getRows());
 			utils::memFree(Jxy, epi.getRows());
 			utils::memFree(Jyy, epi.getRows());
@@ -87,6 +97,7 @@ void CDL::transform(double focal)
 				//equation(6)
 			
 		}
+		utils::memFree(gaussian, 3);
 	}
 	if(getComputePosition()==VERTICAL)
 	{
@@ -95,7 +106,7 @@ void CDL::transform(double focal)
 			EPI epi(EPI::createEPIPath(getDir(), getBaseName(), i, VERTICAL));
 
 			//from [0-255] range to [0-1]
-			double** pixels=graphicUtils::pixelMultiply(double(1/255), epi.getPixels(), epi.getRows(), epi.getColumns()); 
+			double** pixels=graphicUtils::pixelMultiply(1.0/255.0, epi.getPixels(), epi.getRows(), epi.getColumns()); 
 
 			double** gradientX=graphicUtils::gradient(MASKX, pixels, epi.getRows(), epi.getColumns());
 			double** gradientY=graphicUtils::gradient(MASKY, pixels, epi.getRows(), epi.getColumns());
