@@ -27,6 +27,8 @@ namespace graphicUtils
 	double** toGrayScale(double** matrix, int rows, int columns, GrayMethod method);
 	double** pixelMultiply(double value, double** matrix, int rows, int columns);
 	double** pixelMultiply(double value, int** matrix, int rows, int columns);
+	double** pixelMultiplyN(double value, double** matrix, int rows, int columns);
+	double** pixelMultiplyN(double value, int** matrix, int rows, int columns);
 	int** range(double** matrix, int rows, int columns);
 	int** range(int** matrix, int rows, int columns);
 };

@@ -9,7 +9,7 @@ double** graphicUtils::GaussianKernel(double phi, int rows, int columns)
 		for(int j=0;j<columns;j++)
 		{
 			power=(pow((-rows)/2+i,2)+pow((-columns)/2+j,2))/(2*pow(phi, 2));
-			result[i][j]=(double)(1/(2*PI*phi*phi)*pow(E, -power));
+			result[i][j]=(1/(2*PI*phi*phi)*pow(E, -power));
 		}
 	}
 	return result;
@@ -189,7 +189,18 @@ double** graphicUtils::pixelDivide(double** A, double** B, int rows, int columns
 	return result;
 };
 
-double** graphicUtils::pixelMultiply(double value, double** matrix, int rows, int columns)
+double** graphicUtils::pixelMultiplyN(double value, double** matrix, int rows, int columns)
+{
+	double** result=mathUtils::matrixMultiply(value, matrix, rows, columns);
+	for(int i=0;i<rows;i++)
+	{
+		for(int j=0;j<columns;j++)
+			result[i][j]=min(255.0, max(0.0, result[i][j]));
+	}
+	return result;
+};
+
+double** graphicUtils::pixelMultiplyN(double value, int** matrix, int rows, int columns)
 {
 	double** result=mathUtils::matrixMultiply(value, matrix, rows, columns);
 	for(int i=0;i<rows;i++)
@@ -202,14 +213,13 @@ double** graphicUtils::pixelMultiply(double value, double** matrix, int rows, in
 
 double** graphicUtils::pixelMultiply(double value, int** matrix, int rows, int columns)
 {
-	double** result=mathUtils::matrixMultiply(value, matrix, rows, columns);
-	for(int i=0;i<rows;i++)
-	{
-		for(int j=0;j<columns;j++)
-			result[i][j]=min(255.0, max(0.0, result[i][j]));
-	}
-	return result;
-};
+	return mathUtils::matrixMultiply(value, matrix, rows, columns);
+}
+
+double** graphicUtils::pixelMultiply(double value, double** matrix, int rows, int columns)
+{
+	return mathUtils::matrixMultiply(value, matrix, rows, columns);
+}
 
 int** graphicUtils::toGrayScale(int** matrix, int rows, int columns, GrayMethod method)
 {

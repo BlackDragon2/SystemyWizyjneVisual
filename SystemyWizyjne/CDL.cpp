@@ -1,6 +1,5 @@
 #include "CDL.h"
 
-
 CDL::CDL(void) : Algorithm()
 {
 }
@@ -8,6 +7,39 @@ CDL::CDL(void) : Algorithm()
 
 CDL::~CDL(void)
 {
+}
+
+void visualize(double** arr=0, int rows=0, int cols=0)
+{
+	if(arr==0)
+		arr=fileIO::loadArray("D:\\bikes\\bikes_image_0_1.txt", rows, cols);
+	for(int i=0;i<rows;i++)
+		for(int j=0;j<cols;j++)
+			if(arr[i][j]<0)
+				arr[i][j]=0;
+	double min=arr[0][0];
+	double max=arr[0][0];
+	for(int i=0;i<rows;i++)
+		for(int j=0;j<cols;j++)
+		{
+			if(arr[i][j]<min)
+				min=arr[i][j];
+			if(arr[i][j]>max)
+				max=arr[i][j];
+		}
+	for(int i=0;i<rows;i++)
+		for(int j=0;j<cols;j++)
+		{
+			arr[i][j]=((arr[i][j]-min)/(max-min))*255;
+		}
+	graphicIO::showImage(arr, rows, cols, 1);
+	graphicIO::saveImage(arr, rows, cols, "D:\\other\\im1.jpg", 1);
+	for(int i=0;i<rows;i++)
+		for(int j=0;j<cols;j++)
+		{
+			arr[i][j]=255-arr[i][j];
+		}
+	graphicIO::saveImage(arr, rows, cols, "D:\\other\\im2.jpg", 1);
 }
 
 void CDL::transform(double focal)
@@ -24,8 +56,9 @@ void CDL::transform(double focal)
 	{
 		createFiles();
 
-		//EPI epi(EPI::createEPIPath(getDir(), getBaseName(), 50, HORIZONTAL));
+		//EPI epi(EPI::createEPIPath(getDir(), getBaseName(), 0, HORIZONTAL));
 		//graphicIO::showImage(epi.getPixels(), epi.getRows(), epi.getColumns(), 1);
+		
 
 		double** gaussian=graphicUtils::normalize(graphicUtils::GaussianKernel(PHI, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS), GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, true);
 		for(int i=0;i<getImageRows();i++)
@@ -39,12 +72,13 @@ void CDL::transform(double focal)
 			double** gradientY=graphicUtils::gradient(MASKY, pixels, epi.getRows(), epi.getColumns());
 			double** xx=graphicUtils::pixelMultiply(gradientX, gradientX, epi.getRows(), epi.getColumns());
 			double** xy=graphicUtils::pixelMultiply(gradientX, gradientY, epi.getRows(), epi.getColumns());
-			double** yy=graphicUtils::pixelMultiply(gradientY, gradientY, epi.getRows(), epi.getColumns());//graphicIO::showImage(graphicUtils::pixelMultiply(255, pixels, epi.getRows(), epi.getColumns()), epi.getRows(), epi.getColumns(), 1);
+			double** yy=graphicUtils::pixelMultiply(gradientY, gradientY, epi.getRows(), epi.getColumns());
 			
+			//graphicIO::showImage(graphicUtils::pixelMultiply(255, gradientX, epi.getRows(), epi.getColumns()), epi.getRows(), epi.getColumns(), 1);
 			Jxx=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, xx, epi.getRows(), epi.getColumns());//graphicIO::showImage(graphicUtils::pixelMultiply(255, Jxx, epi.getRows(), epi.getColumns()), epi.getRows(), epi.getColumns(), 1);
 			Jxy=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, xy, epi.getRows(), epi.getColumns());
 			Jyy=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, yy, epi.getRows(), epi.getColumns());
-				
+
 			//equation(5)
 			double** sub=graphicUtils::pixelSubstract(Jyy, Jxx, epi.getRows(), epi.getColumns());
 			double** mul=graphicUtils::pixelMultiply(2.0, Jxy, epi.getRows(), epi.getColumns());
@@ -52,7 +86,7 @@ void CDL::transform(double focal)
 			double** dev=graphicUtils::pixelDivide(sub, mul, epi.getRows(), epi.getColumns());
 			double** arctan=mathUtils::arctan(dev, epi.getRows(), epi.getColumns());
 			double** phi=graphicUtils::pixelMultiply(0.5, arctan, epi.getRows(), epi.getColumns());
-			
+	
 			//equation(7)
 
 			double** sum=graphicUtils::pixelAdd(Jxx, Jyy, epi.getRows(), epi.getColumns());
@@ -68,7 +102,7 @@ void CDL::transform(double focal)
 			{
 				
 				for(int j=0;j<epi.getColumns();j++)
-					message[j]=-focal*(tan(phi[i][j]))*255;//message[j]=-focal*(1/tan(phi[i][j]))*255;
+					message[j]=-focal*(tan(phi[i][j]))*255;//message[j]=-focal*(tan(phi[i][j]))*255;
 				string file=getDir()+getBaseName()+"_image_"+utils::to_string<int>(i)+"_1.txt";
 				fileIO::saveLine(file, message, epi.getColumns());
 				file=getDir()+getBaseName()+"_r_"+utils::to_string<int>(i)+"_1.txt";
@@ -167,6 +201,7 @@ void CDL::transform(double focal)
 			utils::memFree(Jyy, epi.getRows());
 		}
 	}
+	visualize();
 }
 
 void CDL::createFiles()

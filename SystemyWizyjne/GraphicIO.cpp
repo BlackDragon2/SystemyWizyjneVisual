@@ -3,26 +3,6 @@
 using namespace std;
 using namespace cv;
 
-inline void graphicIO::saveImage(Mat image, const char* path)
-{
-	 imwrite(path, image);
-};
-
-inline void graphicIO::saveImage(Mat image, string path)
-{
-	imwrite(path, image);
-};
-
-inline void graphicIO::saveImage(int** matrix, int rows, int columns, const char* path)
-{
-	imwrite(path, createImage(matrix, rows, columns));
-};
-
-inline void graphicIO::saveImage(int** matrix, int rows, int columns, string path)
-{
-	imwrite(path, createImage(matrix, rows, columns));
-};
-
 Mat graphicIO::createImage(int** matrix, int rows, int columns, int flag)
 {
 	Mat image(Size(columns,rows),CV_8UC3);

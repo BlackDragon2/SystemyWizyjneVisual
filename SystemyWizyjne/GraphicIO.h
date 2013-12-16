@@ -9,14 +9,34 @@
 
 namespace graphicIO
 {
-	inline void saveImage(cv::Mat image, const char* path);
-	inline void saveImage(cv::Mat image, std::string path);
-	inline void saveImage(int** matrix, int rows, int columns, const char* path);
-	inline void saveImage(int** matrix, int rows, int columns, std::string path);
 	cv::Mat createImage(int** matrix, int rows, int columns, int flag=0);
 	cv::Mat createImage(int** matrix, int rows, int columns, Position position);
 	cv::Mat createImage(double** matrix, int rows, int columns, int flag=0);
 	cv::Mat createImage(double** matrix, int rows, int columns, Position position);
+	inline void saveImage(cv::Mat image, const char* path)
+	{
+		imwrite(path, image);
+	};
+	inline void saveImage(cv::Mat image, std::string path)
+	{
+		imwrite(path, image);
+	};
+	inline void saveImage(int** matrix, int rows, int columns, const char* path, int flag=0)
+	{
+		imwrite(path, createImage(matrix, rows, columns, flag));
+	};
+	inline void saveImage(int** matrix, int rows, int columns, std::string path, int flag=0)
+	{
+		imwrite(path, createImage(matrix, rows, columns, flag));
+	};
+		inline void saveImage(double** matrix, int rows, int columns, const char* path, int flag=0)
+	{
+		imwrite(path, createImage(matrix, rows, columns, flag));
+	};
+	inline void saveImage(double** matrix, int rows, int columns, std::string path, int flag=0)
+	{
+		imwrite(path, createImage(matrix, rows, columns, flag));
+	};
 	cv::Mat createGreyscaleImage(int** matrix, int rows, int columns, GrayMethod method);
 	inline cv::Mat getImage(string path)
 	{
