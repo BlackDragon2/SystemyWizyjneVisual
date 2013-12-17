@@ -12,11 +12,11 @@ CDL::~CDL(void)
 void visualize(double** arr=0, int rows=0, int cols=0)
 {
 	if(arr==0)
-		arr=fileIO::loadArray("D:\\bikes\\bikes_image_0_1.txt", rows, cols);
-	for(int i=0;i<rows;i++)
+		arr=fileIO::loadArray("D:\\bikes\\bikes_image_26_1.txt", rows, cols);
+	/*for(int i=0;i<rows;i++)
 		for(int j=0;j<cols;j++)
 			if(arr[i][j]<0)
-				arr[i][j]=0;
+				arr[i][j]=0;*/
 	double min=arr[0][0];
 	double max=arr[0][0];
 	for(int i=0;i<rows;i++)
@@ -27,10 +27,16 @@ void visualize(double** arr=0, int rows=0, int cols=0)
 			if(arr[i][j]>max)
 				max=arr[i][j];
 		}
+	if(max>10000)
+		max=10000;
+	if(min<0)
+		min=0;
 	for(int i=0;i<rows;i++)
 		for(int j=0;j<cols;j++)
 		{
 			arr[i][j]=((arr[i][j]-min)/(max-min))*255;
+			if(arr[i][j]>255) arr[i][j]=255;
+			if(arr[i][j]<0) arr[i][j]=0;
 		}
 	graphicIO::showImage(arr, rows, cols, 1);
 	graphicIO::saveImage(arr, rows, cols, "D:\\other\\im1.jpg", 1);
@@ -39,6 +45,8 @@ void visualize(double** arr=0, int rows=0, int cols=0)
 		{
 			arr[i][j]=255-arr[i][j];
 		}
+	cout<<"Min "<<min<<endl;
+	cout<<"Max "<<max<<endl;
 	graphicIO::saveImage(arr, rows, cols, "D:\\other\\im2.jpg", 1);
 }
 
@@ -83,12 +91,11 @@ void CDL::transform(double focal)
 			double** sub=graphicUtils::pixelSubstract(Jyy, Jxx, epi.getRows(), epi.getColumns());
 			double** mul=graphicUtils::pixelMultiply(2.0, Jxy, epi.getRows(), epi.getColumns());
 			
-			double** dev=graphicUtils::pixelDivide(sub, mul, epi.getRows(), epi.getColumns());
-			double** arctan=mathUtils::arctan(dev, epi.getRows(), epi.getColumns());
+			double** arctan=mathUtils::arctan(mul, sub, epi.getRows(), epi.getColumns());
 			double** phi=graphicUtils::pixelMultiply(0.5, arctan, epi.getRows(), epi.getColumns());
 	
 			//equation(7)
-
+			//visualize(phi, epi.getRows(), epi.getColumns());
 			double** sum=graphicUtils::pixelAdd(Jxx, Jyy, epi.getRows(), epi.getColumns());
 			double** sumQuater=graphicUtils::pixelMultiply(sum, sum, epi.getRows(), epi.getColumns());
 
@@ -102,7 +109,7 @@ void CDL::transform(double focal)
 			{
 				
 				for(int j=0;j<epi.getColumns();j++)
-					message[j]=-focal*(tan(phi[i][j]))*255;//message[j]=-focal*(tan(phi[i][j]))*255;
+					message[j]=focal/(tan(phi[i][j])+1);//message[j]=-focal*(tan(phi[i][j]))*255;
 				string file=getDir()+getBaseName()+"_image_"+utils::to_string<int>(i)+"_1.txt";
 				fileIO::saveLine(file, message, epi.getColumns());
 				file=getDir()+getBaseName()+"_r_"+utils::to_string<int>(i)+"_1.txt";
@@ -111,7 +118,6 @@ void CDL::transform(double focal)
 			utils::memFree(xx, epi.getRows());
 			utils::memFree(xy, epi.getRows());
 			utils::memFree(yy, epi.getRows());
-			utils::memFree(dev, epi.getRows());
 			utils::memFree(sub, epi.getRows());
 			utils::memFree(mul, epi.getRows());
 			utils::memFree(sum, epi.getRows());
@@ -153,8 +159,7 @@ void CDL::transform(double focal)
 			double** sub=graphicUtils::pixelSubstract(Jyy, Jxx, epi.getRows(), epi.getColumns());
 			double** mul=graphicUtils::pixelMultiply(2.0, Jxy, epi.getRows(), epi.getColumns());
 			
-			double** dev=graphicUtils::pixelDivide(sub, mul, epi.getRows(), epi.getColumns());
-			double** arctan=mathUtils::arctan(dev, epi.getRows(), epi.getColumns());
+			double** arctan=mathUtils::arctan(mul, sub, epi.getRows(), epi.getColumns());
 			double** phi=graphicUtils::pixelMultiply(0.5, arctan, epi.getRows(), epi.getColumns());
 			
 			//equation(7)
@@ -174,7 +179,7 @@ void CDL::transform(double focal)
 				
 				for(int j=0;j<epi.getRows();j++)
 				{
-					message[j]=-focal*(1/tan(phi[j][i]))*255;
+					message[j]=focal/(tan(phi[j][i])+1);
 					rMessage[j]=r[j][i];
 				}
 				string file=getDir()+getBaseName()+"_image_"+utils::to_string<int>(i)+"_0.txt";
@@ -183,7 +188,6 @@ void CDL::transform(double focal)
 				fileIO::saveLine(file, rMessage, epi.getRows());
 			}
 			
-			utils::memFree(dev, epi.getRows());
 			utils::memFree(sub, epi.getRows());
 			utils::memFree(mul, epi.getRows());
 			utils::memFree(sum, epi.getRows());

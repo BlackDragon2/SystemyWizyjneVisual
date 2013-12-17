@@ -36,12 +36,12 @@ double** mathUtils::IntToDouble(int** matrix, int rows, int columns)
 	return result;
 };
 
-double** mathUtils::arctan(double** matrix, int rows, int columns)
+double** mathUtils::arctan(double** matrix, double** matrix2, int rows, int columns)
 {
 	double** result=utils::create2DDouble(rows, columns);
 	for(int i=0;i<rows;i++)
 		for(int j=0;j<columns;j++)
-			result[i][j]=atan(matrix[i][j]);
+			result[i][j]=atan2(matrix[i][j], matrix2[i][j]);
 	return result;
 };
 

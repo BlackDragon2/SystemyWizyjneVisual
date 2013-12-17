@@ -185,7 +185,10 @@ double** graphicUtils::pixelDivide(double** A, double** B, int rows, int columns
 	double** result=utils::create2DDouble(rows, columns);
 	for(int i=0;i<rows;i++)
 		for(int j=0;j<columns;j++)
-			result[i][j]=(A[i][j]/(B[i][j]+1));
+			if(B[i][j]==0)
+				result[i][j]=0;
+			else
+				result[i][j]=(A[i][j]/(B[i][j]));
 	return result;
 };
 
