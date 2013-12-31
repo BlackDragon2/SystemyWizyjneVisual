@@ -77,6 +77,10 @@
     <ClInclude Include="GrayMethod.h" />
     <ClInclude Include="MathUtils.h" />
     <ClInclude Include="Position.h" />
+    <ClInclude Include="Selector.h" />
+    <ClInclude Include="tetgen.h" />
+    <ClInclude Include="Transfomation.h" />
+    <ClInclude Include="Triangulation.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
@@ -90,6 +94,11 @@
     <ClCompile Include="GrayMethod.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MathUtils.cpp" />
+    <ClCompile Include="predicates.cxx" />
+    <ClCompile Include="Selector.cpp" />
+    <ClCompile Include="tetgen.cxx" />
+    <ClCompile Include="Transfomation.cpp" />
+    <ClCompile Include="Triangulation.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

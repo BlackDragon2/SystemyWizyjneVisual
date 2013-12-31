@@ -11,10 +11,12 @@ public:
 	Algorithm(void);
 	virtual ~Algorithm(void);
 	virtual void transform(double focal)=0;
+	virtual void makeConsistent()=0;
 	bool EPIExists(std::string config);
 	bool EPIExists(const char* config);
-	void compute(std::string config, Position position, double focalPoint);
+	void compute(std::string config, double focalPoint);
 	void createEPI(string config);
+	int chooseMostReliable();
 
 	std::string getDir() { return dir_; };
 	std::string getBaseName() {	return baseName_; };

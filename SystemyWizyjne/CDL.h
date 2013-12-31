@@ -7,6 +7,7 @@ public:
 	CDL(void);
 	~CDL(void);
 	void transform(double focal);
+	void makeConsistent();
 	void createFiles();
 private:
 static const int GAUSSIAN_ROWS=3;

@@ -19,7 +19,7 @@ Algorithm::~Algorithm(void)
 {
 }
 
-void Algorithm::compute(string config, Position position, double focalPoint) 
+void Algorithm::compute(string config, double focalPoint) 
 {
 	if(!EPIExists(config))
 		createEPI(config);		
@@ -44,7 +44,7 @@ bool Algorithm::EPIExists(const char* config)
 		case 'H':
 			computePosition_=HORIZONTAL;
 			break;
-		case 1:
+		case 'V':
 			computePosition_=VERTICAL;
 		};
 		dir_=data.at(1);
@@ -95,22 +95,19 @@ void Algorithm::createEPI(string config)
 	for(int i=0;i<hImages_;i++)
 	{
 		string source=dir_+"Horizontal\\"+baseName_+utils::to_string<int>(i)+extension_;
-		double** tempTab=graphicIO::getImageInArray(graphicIO::getImage(source), imageRows_, imageColumns_);
-		double** tab=graphicUtils::toGrayScale(tempTab, imageRows_, imageColumns_, GrayMethod::LIGHTNESS);
+		double** tab=graphicIO::getImageInArray(graphicIO::getImage(source), imageRows_, imageColumns_);
 		for(int j=0;j<imageRows_;j++)
 		{
 			string path=dir_+baseName_+"_"+utils::to_string<int>(j)+"_1.txt";
 			fileIO::saveLine<double>(path, tab[j], imageColumns_);
 		}
-		utils::memFree(tempTab, imageRows_);
 		utils::memFree(tab, imageRows_);
 	}
 	double* temp=new double[imageRows_];
 	for(int i=0;i<vImages_;i++)
 	{
-		string source=dir_+"Vertical"+baseName_+utils::to_string<int>(i)+extension_;
-		double** tempTab=graphicIO::getImageInArray(graphicIO::getImage(source), imageRows_, imageColumns_);
-		double** tab=graphicUtils::toGrayScale(tempTab, imageRows_, imageColumns_, GrayMethod::LIGHTNESS);
+		string source=dir_+"Vertical\\"+baseName_+utils::to_string<int>(i)+extension_;
+		double** tab=graphicIO::getImageInArray(graphicIO::getImage(source), imageRows_, imageColumns_);
 
 		for(int j=0;j<imageColumns_;j++)
 		{
@@ -119,9 +116,71 @@ void Algorithm::createEPI(string config)
 			string path=dir_+baseName_+"_"+utils::to_string<int>(j)+"_0.txt";
 			fileIO::saveLine<double>(path, temp, imageRows_);
 		}
-		utils::memFree(tempTab, imageRows_);
 		utils::memFree(tab, imageRows_);
 	}
 	delete[] temp;
 	cout<<"Generation ended"<<endl;		
+}
+
+int Algorithm::chooseMostReliable()
+{
+	int imageIndex=0;
+	double maxRel=0;
+	int rows=0;
+	int cols=0;
+	if(getComputePosition()==BOTH)
+	{
+		for(int i=0;i<getHImages();i++)
+		{
+			double rel=0;
+			double** R=fileIO::loadArray(getDir()+getBaseName()+"_finalR_"+to_string(i)+".txt", rows, cols);
+			for(int r=0;r<rows;r++)
+				for(int c=0;c<cols;c++)
+					rel+=R[r][c];
+			if(rel>maxRel)
+			{
+				maxRel=rel;
+				imageIndex=i;
+			}
+			utils::memFree(R, rows);
+		}
+	}
+	else
+	{
+		if(getComputePosition()==HORIZONTAL)
+		{
+			for(int i=0;i<getHImages();i++)
+			{
+				double rel=0;
+				double** R=fileIO::loadArray(getDir()+getBaseName()+to_string(i)+"_1.txt", rows, cols);
+				for(int r=0;r<rows;r++)
+					for(int c=0;c<cols;c++)
+						rel+=R[r][c];
+				if(rel>maxRel)
+				{
+					maxRel=rel;
+					imageIndex=i;
+				}
+				utils::memFree(R, rows);
+			}
+		}
+		else
+		{
+			for(int i=0;i<getVImages();i++)
+			{
+				double rel=0;
+				double** R=fileIO::loadArray(getDir()+getBaseName()+"_r_"+to_string(i)+"_0.txt", rows, cols);
+				for(int r=0;r<rows;r++)
+					for(int c=0;c<cols;c++)
+						rel+=R[r][c];
+				if(rel>maxRel)
+				{
+					maxRel=rel;
+					imageIndex=i;
+				}
+				utils::memFree(R, rows);
+			}
+		}
+	}
+	return imageIndex;
 }
