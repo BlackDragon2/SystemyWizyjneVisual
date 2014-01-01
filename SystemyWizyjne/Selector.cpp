@@ -2,10 +2,12 @@
 
 using namespace std;
 
-vector<double> selector::select(std::string config, int fileNr)
+vector<double> selector::select(std::string file)
 {
+	return select(file.c_str());
 }
 
-vector<double> selector::select(char* config, int fileNr)
+vector<double> selector::select(char* file)
 {
+
 }

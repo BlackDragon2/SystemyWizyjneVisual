@@ -105,8 +105,8 @@ void CDL::makeConsistent()
 				}
 			}
 		}
-		fileIO::saveArray("D:\\bikes\\bikes_final_"+to_string(i)+".txt", result, rows, cols, false);
-		fileIO::saveArray("D:\\bikes\\bikes_finalR_"+to_string(i)+".txt", result, rows, cols, false);
+		fileIO::saveArray(getDir()+getBaseName()+"_final_"+to_string(i)+".txt", result, rows, cols, false);
+		fileIO::saveArray(getDir()+getBaseName()+"_finalR_"+to_string(i)+".txt", result, rows, cols, false);
 		utils::memFree(hor, rows);
 		utils::memFree(ver, rows);
 		utils::memFree(horR, rows);

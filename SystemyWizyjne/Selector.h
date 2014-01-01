@@ -4,6 +4,6 @@
 
 namespace selector
 {
-	std::vector<double> select(std::string config, int fileNr);
-	std::vector<double> select(char* config, int fileNr);
+	std::vector<double> select(std::string file);
+	std::vector<double> select(char* file);
 }
