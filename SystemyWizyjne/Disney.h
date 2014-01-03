@@ -8,6 +8,5 @@ public:
 	~Disney(void);
 	void transform(double focal);
 	void makeConsistent();
-	void createFiles();
 };
 

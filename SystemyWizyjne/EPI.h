@@ -16,7 +16,7 @@ public:
 	void loadEPI(const char* path, int size);
 	void saveEPI(const char* path);	
 	void saveEPI(std::string path);
-	static std::string createEPIPath(std::string dir, std::string name, int line, Position position);
+	static std::string createEPIPath(std::string dir, int groupID, std::string name, int line, Position position);
 	void print(bool color);
 	~EPI(void);
 	inline double** getPixels()

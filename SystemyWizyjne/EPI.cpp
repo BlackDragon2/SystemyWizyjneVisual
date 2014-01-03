@@ -76,12 +76,12 @@ void EPI::saveEPI(std::string path)
 	fileIO::saveArray(path, pixels_, rows_, columns_, position_==VERTICAL);
 };
 
-/*static*/ std::string EPI::createEPIPath(std::string dir, std::string name, int line, Position position)
+/*static*/ std::string EPI::createEPIPath(std::string dir, int groupID,  std::string name, int line, Position position)
 {
 	if(position==HORIZONTAL)
-		return dir+name+"_"+utils::to_string<int>(line)+"_1.txt";
+		return dir+to_string(groupID)+name+"_"+to_string(line)+"_1.txt";
 	else
-		return dir+name+"_"+utils::to_string<int>(line)+"_0.txt";
+		return dir+to_string(groupID)+name+"_"+to_string(line)+"_0.txt";
 };
 
 void EPI::print(bool color)

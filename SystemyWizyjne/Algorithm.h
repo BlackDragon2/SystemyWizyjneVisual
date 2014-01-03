@@ -15,8 +15,19 @@ public:
 	bool EPIExists(std::string config);
 	bool EPIExists(const char* config);
 	void compute(std::string config, double focalPoint);
-	void createEPI(string config);
+	void createEPI();
 	int chooseMostReliable();
+	void changeName(string type);
+	void createHorizontalEPI(int groupID);
+	void createVerticalEPI(int groupID, char mul=0);
+	void visualize(const char* outFile, double** arr, int rows, int cols, double minimum, double maximum);
+	void visualize(std::string outFile, double** arr, int rows, int cols, double minimum, double maximum);
+	void visualize(std::string outFile, double** arr, int rows, int cols);
+	void visualize(char* outFile, double** arr, int rows, int cols);
+	void visualize(char* inFile, char* outFile, double minimum, double maximum);
+	void visualize(char* inFile, char* outFile);
+	void visualize(std::string inFile, std::string outFile, double minimum, double maximum);
+	void visualize(std::string inFile, std::string outFile);
 
 	std::string getDir() { return dir_; };
 	std::string getBaseName() {	return baseName_; };

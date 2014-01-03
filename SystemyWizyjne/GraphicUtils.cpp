@@ -252,7 +252,7 @@ int** graphicUtils::range(double** matrix, int rows, int columns)
 				min=matrix[i][j];
 	for(int i=0;i<rows;i++)
 		for(int j=0;j<columns;j++)
-			result[i][j]=(int)(matrix[i][j]*255/min);cout<<min<<endl;
+			result[i][j]=(int)(matrix[i][j]*255/min);
 	return result;
 };
 
@@ -266,6 +266,6 @@ int** graphicUtils::range(int** matrix, int rows, int columns)
 				min=matrix[i][j];
 	for(int i=0;i<rows;i++)
 		for(int j=0;j<columns;j++)
-			result[i][j]=(int)((double)matrix[i][j]*255/min);cout<<min<<endl;
+			result[i][j]=(int)((double)matrix[i][j]*255/min);
 	return result;
 };

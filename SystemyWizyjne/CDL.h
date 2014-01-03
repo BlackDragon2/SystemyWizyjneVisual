@@ -7,7 +7,10 @@ public:
 	CDL(void);
 	~CDL(void);
 	void transform(double focal);
+	void transformH(double focal, int groupID);
+	void transformV(double focal, int groupID);
 	void makeConsistent();
+	void createFile(int i, std::string type, bool del);
 	void createFiles();
 private:
 static const int GAUSSIAN_ROWS=3;
