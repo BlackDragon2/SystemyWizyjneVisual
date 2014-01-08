@@ -9,16 +9,20 @@ void triangulation::triangulate(int pointsNumber, double* pointsList, string out
 
 void triangulation::triangulate(int pointsNumber, double* pointsList, char* outputFile)
 {
-  tetgenio inp, out;
-  tetgenbehavior behavior;
-  behavior.parse_commandline("pq1.414a0.1");
+	cout<<"Tetralization started"<<endl;
+	tetgenio inp, out;
+	tetgenbehavior behavior;
+	behavior.parse_commandline("pq1.414a0.1");
  
-  inp.initialize();
-  out.initialize();
+	inp.initialize();
+	out.initialize();
  
-  inp.numberofpoints = pointsNumber;
-  inp.pointlist = (REAL*) pointsList;
+	inp.numberofpoints = pointsNumber;
+	inp.pointlist = (REAL*) pointsList;
 
-  tetrahedralize(&behavior, &inp, &out, 0, 0);
-  out.save_poly(outputFile);
+	tetrahedralize(&behavior, &inp, &out, 0, 0);
+	cout<<"Tetralization ended"<<endl;
+	cout<<"Saving poly file..."<<endl;
+	out.save_poly(outputFile);
+	cout<<"Poly file saved"<<endl;
 }

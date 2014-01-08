@@ -231,7 +231,7 @@ int** graphicUtils::toGrayScale(int** matrix, int rows, int columns, GrayMethod 
 		for(int j=0;j<columns;j++)
 			result[i][j]=toGray(method, graphicIO::getR(matrix[i][j]), graphicIO::getB(matrix[i][j]), graphicIO::getB(matrix[i][j]));
 	return result;
-};
+}
 
 double** graphicUtils::toGrayScale(double** matrix, int rows, int columns, GrayMethod method)
 {
@@ -240,7 +240,7 @@ double** graphicUtils::toGrayScale(double** matrix, int rows, int columns, GrayM
 		for(int j=0;j<columns;j++)
 			result[i][j]=toGray(method, graphicIO::getR(matrix[i][j]), graphicIO::getB(matrix[i][j]), graphicIO::getB(matrix[i][j]));
 	return result;
-};
+}
 
 int** graphicUtils::range(double** matrix, int rows, int columns)
 {
@@ -254,11 +254,11 @@ int** graphicUtils::range(double** matrix, int rows, int columns)
 		for(int j=0;j<columns;j++)
 			result[i][j]=(int)(matrix[i][j]*255/min);
 	return result;
-};
+}
 
 int** graphicUtils::range(int** matrix, int rows, int columns)
 {
-		int** result=utils::create2DInt(rows, columns);
+	int** result=utils::create2DInt(rows, columns);
 	double min=matrix[0][0];
 	for(int i=0;i<rows;i++)
 		for(int j=0;j<columns;j++)
@@ -268,4 +268,152 @@ int** graphicUtils::range(int** matrix, int rows, int columns)
 		for(int j=0;j<columns;j++)
 			result[i][j]=(int)((double)matrix[i][j]*255/min);
 	return result;
-};
+}
+
+double** graphicUtils::opening(double** matrix, int rows, int columns, int maskRows, int maskColumns)
+{
+	double** temp=erosion(matrix, rows, columns, maskRows, maskColumns);
+	double** result=dilation(matrix, rows, columns, maskRows, maskColumns);
+	utils::memFree(temp, rows);
+	return result;
+}
+
+int** graphicUtils::opening(int** matrix, int rows, int columns, int maskRows, int maskColumns)
+{
+	int** temp=erosion(matrix, rows, columns, maskRows, maskColumns);
+	int** result=dilation(matrix, rows, columns, maskRows, maskColumns);
+	utils::memFree(temp, rows);
+	return result;
+}
+
+double** graphicUtils::closing(double** matrix, int rows, int columns, int maskRows, int maskColumns)
+{
+	double** temp=dilation(matrix, rows, columns, maskRows, maskColumns);
+	double** result=erosion(matrix, rows, columns, maskRows, maskColumns);
+	utils::memFree(temp, rows);
+	return result;
+}
+
+int** graphicUtils::closing(int** matrix, int rows, int columns, int maskRows, int maskColumns)
+{
+	int** temp=dilation(matrix, rows, columns, maskRows, maskColumns);
+	int** result=erosion(matrix, rows, columns, maskRows, maskColumns);
+	utils::memFree(temp, rows);
+	return result;
+}
+
+double** graphicUtils::dilation(double** matrix, int rows, int columns, int maskRows, int maskColumns)
+{
+	double** result=utils::create2DDouble(rows, columns);
+	int w=(maskRows-1)/2;
+	int h=(maskColumns-1)/2;
+	int flag=1;
+	for(int x=0;x<rows;x++)
+	{
+		for(int y=0;y<columns;y++)
+		{
+			flag=1;
+			result[x][y]=0;
+			for(int i=-w;i<=w&&flag;i++)
+			{
+				for(int j=-h;j<=h&&flag;j++)
+				{
+					if(x-i>=0&&y-j>=0&&x-i<rows&&y-j<columns)
+						if(matrix[x-i][y-j]>0)
+						{
+							flag=0;
+							result[x][y]=matrix[i][j];
+						}
+				}
+			}			
+		}
+	}
+	return result;
+}
+
+int** graphicUtils::dilation(int** matrix, int rows, int columns, int maskRows, int maskColumns)
+{
+	int** result=utils::create2DInt(rows, columns);
+	int w=(maskRows-1)/2;
+	int h=(maskColumns-1)/2;
+	int flag=1;
+	for(int x=0;x<rows;x++)
+	{
+		for(int y=0;y<columns;y++)
+		{
+			flag=1;
+			result[x][y]=0;
+			for(int i=-w;i<=w&&flag;i++)
+			{
+				for(int j=-h;j<=h&&flag;j++)
+				{
+					if(x-i>=0&&y-j>=0&&x-i<rows&&y-j<columns)
+						if(matrix[x-i][y-j]>0)
+						{
+							flag=0;
+							result[x][y]=matrix[i][j];
+						}
+				}
+			}			
+		}
+	}
+	return result;
+}
+
+double** graphicUtils::erosion(double** matrix, int rows, int columns, int maskRows, int maskColumns)
+{
+	double** result=utils::create2DDouble(rows, columns);
+	int w=(maskRows-1)/2;
+	int h=(maskColumns-1)/2;
+	int flag=1;
+	for(int x=0;x<rows;x++)
+	{
+		for(int y=0;y<columns;y++)
+		{
+			flag=1;
+			result[x][y]=matrix[x][y];
+			for(int i=-w;i<=w&&flag;i++)
+			{
+				for(int j=-h;j<=h&&flag;j++)
+				{
+					if(x-i>=0&&y-j>=0&&x-i<rows&&y-j<columns)
+						if(matrix[x-i][y-j]==0)
+						{
+							flag=0;
+							result[x][y]=0;
+						}
+				}
+			}			
+		}
+	}
+	return result;
+}
+
+int** graphicUtils::erosion(int** matrix, int rows, int columns, int maskRows, int maskColumns)
+{
+	int** result=utils::create2DInt(rows, columns);
+	int w=(maskRows-1)/2;
+	int h=(maskColumns-1)/2;
+	int flag=1;
+	for(int x=0;x<rows;x++)
+	{
+		for(int y=0;y<columns;y++)
+		{
+			flag=1;
+			result[x][y]=matrix[x][y];
+			for(int i=-w;i<=w&&flag;i++)
+			{
+				for(int j=-h;j<=h&&flag;j++)
+				{
+					if(x-i>=0&&y-j>=0&&x-i<rows&&y-j<columns)
+						if(matrix[x-i][y-j]==0)
+						{
+							flag=0;
+							result[x][y]=0;
+						}
+				}
+			}			
+		}
+	}
+	return result;
+}

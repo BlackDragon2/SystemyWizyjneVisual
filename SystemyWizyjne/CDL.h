@@ -10,8 +10,10 @@ public:
 	void transformH(double focal, int groupID);
 	void transformV(double focal, int groupID);
 	void makeConsistent();
-	void createFile(int i, std::string type, bool del);
+	void createFileH(int i, std::string type, bool del);
+	void createFileV(int i, std::string type, bool del);
 	void createFiles();
+	void rotate();
 private:
 static const int GAUSSIAN_ROWS=3;
 static const int GAUSSIAN_COLUMNS=3;

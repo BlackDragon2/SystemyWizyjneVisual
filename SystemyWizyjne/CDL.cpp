@@ -9,12 +9,44 @@ CDL::~CDL(void)
 {
 }
 
+void CDL::rotate()
+{
+	for(int i=0;i<getVImages()*(getHImages()?getHImages():1);i++)
+	{
+		cout<<"Rotating "<<i+1<<" image from "<<getVImages()*(getHImages()?getHImages():1)<<endl;
+		int rows;
+		int cols;
+		string file=getDir()+getBaseName()+"_image_"+to_string(i)+"_0.txt";
+		string rFile=getDir()+getBaseName()+"_r_"+to_string(i)+"_0.txt";
+		double** image=fileIO::loadArray(file, rows, cols);
+		double** r=fileIO::loadArray(rFile, rows, cols);
+		createFileH(i,"_0.txt", false);
+		double* message=new double[rows];
+		double* rMessage=new double[rows];
+		for(int j=0;j<cols;j++)
+		{
+			for(int k=0;k<rows;k++)
+			{
+				message[k]=image[k][j];
+				rMessage[k]=r[k][j];
+			}
+			fileIO::saveLine(file, message, rows);
+			fileIO::saveLine(rFile, rMessage, rows);
+		}
+		delete[] message;
+		delete[] rMessage;
+		utils::memFree(image, rows);
+		utils::memFree(r, rows);
+	}
+}
+
 void CDL::makeConsistent()
 {
 	int rows=0;
 	int cols=0;
 	for(int i=0;i<getHImages()*getVImages();i++)
 	{
+		cout<<"Joining image "<<i<<" of "<<getHImages()*getVImages()<<endl;
 		double** ver=fileIO::loadArray(getDir()+getBaseName()+"_image_"+to_string(i)+"_0.txt", rows, cols);
 		double** hor=fileIO::loadArray(getDir()+getBaseName()+"_image_"+to_string(i)+"_1.txt", rows, cols);
 		double** verR=fileIO::loadArray(getDir()+getBaseName()+"_r_"+to_string(i)+"_0.txt", rows, cols);
@@ -46,6 +78,7 @@ void CDL::makeConsistent()
 		utils::memFree(result, rows);
 		utils::memFree(resultR, rows);
 	}
+	cout<<"Joining done"<<endl;
 }
 
 void CDL::transform(double focal)
@@ -66,6 +99,7 @@ void CDL::transform(double focal)
 			transformH(focal, i);
 		for(int i=1;i<=getHImages();i++)
 			transformV(focal, i);
+		rotate();
 	}
 	if(getComputePosition()==HORIZONTAL)
 	{	
@@ -74,11 +108,7 @@ void CDL::transform(double focal)
 	if(getComputePosition()==VERTICAL)
 	{	
 		transformV(focal, 1);
-	}
-
-	if(getComputePosition()==VERTICAL||getComputePosition()==BOTH)
-	{
-		
+		rotate();
 	}
 	if(getComputePosition()==BOTH)
 		makeConsistent();
@@ -89,17 +119,13 @@ void CDL::transformH(double focal, int groupID)
 	double** Jxx;
 	double** Jxy;
 	double** Jyy;
-	double** HImage;
-	double** VImage;
-	double* Hr=new double[getHImages()];
-	double* Vr=new double[getVImages()];
 	double** r;
 
 	double** gaussian=graphicUtils::normalize(graphicUtils::GaussianKernel(PHI, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS), GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, true);
 	for(int i=0;i<getImageRows();i++)
 	{
-		cout<<"Procesing "<<i+1<<" EPI from "<<getImageRows()<<endl;
 		EPI epi(EPI::createEPIPath(getDir(), groupID, getBaseName(), i, HORIZONTAL));
+		cout<<"Procesing "<<getImageRows()*(groupID-1)+i+1<<" EPI from "<<getImageRows()*(getVImages()?getVImages():1)<<endl;
 		//from [0-255] range to [0-1]
 		double** tempPixels=graphicUtils::toGrayScale(epi.getPixels(), epi.getRows(), epi.getColumns(), GrayMethod::LIGHTNESS);
 		double** pixels=graphicUtils::pixelMultiply(1.0/255.0, tempPixels, epi.getRows(), epi.getColumns()); 
@@ -163,13 +189,14 @@ void CDL::transformH(double focal, int groupID)
 					}
 				}
 				message[j]=focal/tan(phi[k][j]);
-				message[j]=phi[k][j];
 			}
 			string file=getDir()+getBaseName()+"_image_"+to_string(k+(groupID-1)*getHImages())+"_1.txt";
 			fileIO::saveLine(file, message, epi.getColumns());
 			file=getDir()+getBaseName()+"_r_"+to_string(k+(groupID-1)*getHImages())+"_1.txt";
 			fileIO::saveLine(file, r[k], epi.getColumns());
 		}
+		delete[] message;
+		utils::memFree(phi, epi.getRows());
 		utils::memFree(r, epi.getRows());
 		utils::memFree(sub, epi.getRows());
 		utils::memFree(mul, epi.getRows());
@@ -188,17 +215,13 @@ void CDL::transformV(double focal, int groupID)
 	double** Jxx;
 	double** Jxy;
 	double** Jyy;
-	double** HImage;
-	double** VImage;
-	double* Hr=new double[getHImages()];
-	double* Vr=new double[getVImages()];
 	double** r;
 
 	double** gaussian=graphicUtils::normalize(graphicUtils::GaussianKernel(PHI, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS), GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, true);
 	for(int i=0;i<getImageColumns();i++)
 	{
 		EPI epi(EPI::createEPIPath(getDir(), groupID, getBaseName(), i, VERTICAL));
-
+		cout<<"Procesing "<<getImageRows()*(groupID-1)+i+1<<" EPI from "<<getImageColumns()*(getHImages()?getHImages():1)<<endl;
 		//from [0-255] range to [0-1]
 		double** tempPixels=graphicUtils::toGrayScale(epi.getPixels(), epi.getRows(), epi.getColumns(), GrayMethod::LIGHTNESS);
 		double** pixels=graphicUtils::pixelMultiply(1.0/255.0, tempPixels, epi.getRows(), epi.getColumns()); 
@@ -243,34 +266,33 @@ void CDL::transformV(double focal, int groupID)
 		double** subPlusMul=graphicUtils::pixelAdd(subQuater, mulQuater, epi.getRows(), epi.getColumns());
 
 		r=graphicUtils::pixelDivide(subPlusMul, sumQuater, epi.getRows(), epi.getColumns());
-		double* message=new double[epi.getRows()];
-		double* rMessage=new double[epi.getRows()];
-		for(int k=0;k<epi.getColumns();k++)
-		{	
-			for(int j=0;j<epi.getRows();j++)
+		double* message=new double[epi.getColumns()];
+		for(int k=0;k<epi.getRows();k++)
+		{			
+			for(int j=0;j<epi.getColumns();j++)
 			{
-				if(phi[j][k]<0)
-					phi[j][k]=-phi[j][k];
-				if(phi[j][k]==0)
+				if(phi[k][j]<0)
+					phi[k][j]=-phi[k][j];
+				if(phi[k][j]==0)
 				{
-					if(k>0)
-						phi[j][k]=phi[j][k-1];
+					if(j>0)
+						phi[k][j]=phi[k][j-1];
 					else
 					{
 						int l=1;
-						while(l<epi.getColumns()&&!(phi[j][k]=phi[j][k+l]))
+						while(l<epi.getColumns()&&!(phi[k][j]=phi[k][j+l]))
 							l++;
 					}
 				}
-				message[j]=focal/tan(phi[j][k]);
-				rMessage[j]=r[j][k];
+				message[j]=focal/tan(phi[k][j]);
 			}
 			string file=getDir()+getBaseName()+"_image_"+to_string(k+(groupID-1)*getHImages())+"_0.txt";
-			fileIO::saveLine(file, message, epi.getRows());
+			fileIO::saveLine(file, message, epi.getColumns());
 			file=getDir()+getBaseName()+"_r_"+to_string(k+(groupID-1)*getHImages())+"_0.txt";
-			fileIO::saveLine(file, rMessage, epi.getRows());
+			fileIO::saveLine(file, r[k], epi.getColumns());
 		}
-		
+		delete[] message;
+		utils::memFree(phi, epi.getRows());
 		utils::memFree(r, epi.getRows());
 		utils::memFree(sub, epi.getRows());
 		utils::memFree(mul, epi.getRows());
@@ -290,31 +312,50 @@ void CDL::createFiles()
 	{
 		for(int i=0;i<getHImages()*getVImages();i++)
 		{
-			createFile(i,"_1.txt", true);
-			createFile(i,"_0.txt", false);
+			createFileH(i,"_1.txt", true);
+			createFileV(i,"_0.txt", false);
 		}
 	}
 	if(getComputePosition()==HORIZONTAL)
 	{
 		for(int i=0;i<getHImages();i++)
-			createFile(i,"_1.txt", true);
+			createFileH(i,"_1.txt", true);
 	}
 	if(getComputePosition()==VERTICAL)
 	{
 		for(int i=0;i<getVImages();i++)
-			createFile(i,"_0.txt", true);
+			createFileV(i,"_0.txt", true);
 	}
 }
 
-void CDL::createFile(int i, string type, bool del)
+void CDL::createFileH(int i, string type, bool del)
 {	
 	string file=getDir()+getBaseName()+"_image_"+to_string(i)+type;
 	remove(file.c_str());
-	string message=utils::to_string<int>(getImageRows())+"\n"+utils::to_string<int>(getImageColumns());
+	string message=to_string(getImageRows())+"\n"+to_string(getImageColumns());
 	fileIO::saveLine<string>(file, message);
 	file=getDir()+getBaseName()+"_r_"+to_string(i)+type;
 	remove(file.c_str());
-	message=utils::to_string<int>(getImageRows())+"\n"+utils::to_string<int>(getImageColumns());
+	message=to_string(getImageRows())+"\n"+to_string(getImageColumns());
+	fileIO::saveLine<string>(file, message);
+	if(del)
+	{
+		string file=getDir()+getBaseName()+"_final_"+to_string(i)+".txt";
+		remove(file.c_str());
+		file=getDir()+getBaseName()+"_finalR_"+to_string(i)+".txt";
+		remove(file.c_str());
+	}
+}
+
+void CDL::createFileV(int i, string type, bool del)
+{	
+	string file=getDir()+getBaseName()+"_image_"+to_string(i)+type;
+	remove(file.c_str());
+	string message=to_string(getImageColumns())+"\n"+to_string(getImageRows());
+	fileIO::saveLine<string>(file, message);
+	file=getDir()+getBaseName()+"_r_"+to_string(i)+type;
+	remove(file.c_str());
+	message=to_string(getImageColumns())+"\n"+to_string(getImageRows());
 	fileIO::saveLine<string>(file, message);
 	if(del)
 	{

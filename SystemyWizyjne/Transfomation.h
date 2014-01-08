@@ -1,6 +1,9 @@
 #pragma once
 #include <cmath>
 #include <vector>
+#include <stdio.h>
+#include <iostream>
+#include <stdlib.h>
 
 namespace transformation
 {

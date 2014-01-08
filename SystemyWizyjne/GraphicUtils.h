@@ -10,6 +10,14 @@ namespace graphicUtils
 	double** GaussianKernel(double phi, int rows, int columns);
 	double** convolution(double** mask, int maskRows, int maskColumns, double** matrix, int rows, int columns);
 	double** convolution(double** mask, int maskRows, int maskColumns, int** matrix, int rows, int columns);
+	double** opening(double** matrix, int rows, int columns, int maskRows, int maskColumns);
+	int** opening(int** matrix, int rows, int columns, int maskRows, int maskColumns);
+	double** closing(double** matrix, int rows, int columns, int maskRows, int maskColumns);
+	int** closing(int** matrix, int rows, int columns, int maskRows, int maskColumns);
+	double** dilation(double** matrix, int rows, int columns, int maskRows, int maskColumns);
+	int** dilation(int** matrix, int rows, int columns, int maskRows, int maskColumns);
+	double** erosion(double** matrix, int rows, int columns, int maskRows, int maskColumns);
+	int** erosion(int** matrix, int rows, int columns, int maskRows, int maskColumns);
 	double** normalize(double** matrix, int rows, int columns, bool positive);
 	double** PositiveNormalize(double** matrix, int rows, int columns);
 	double** NegativeNormalize(double** matrix, int rows, int columns);

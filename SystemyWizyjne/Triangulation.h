@@ -1,6 +1,8 @@
 #pragma once
 #include "Utils.h"
 #include "tetgen.h"
+#include <iostream>
+#include <stdlib.h>
 
 namespace triangulation
 {

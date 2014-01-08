@@ -21,6 +21,7 @@ Algorithm::~Algorithm(void)
 
 void Algorithm::visualize(const char* outFile, double** arr, int rows, int cols, double minimum, double maximum)
 {
+	cout<<"Saving image..."<<endl;
 	for(int i=0;i<rows;i++)
 	{
 		for(int j=0;j<cols;j++)
@@ -149,7 +150,7 @@ void Algorithm::createEPI()
 		for(int i=1;i<=vImages_;i++)
 			createHorizontalEPI(i);
 		for(int i=1;i<=hImages_;i++)
-			createVerticalEPI(i, 1);
+			createVerticalEPI(i, 0);
 	}
 	if(computePosition_==HORIZONTAL)
 	{
@@ -157,7 +158,7 @@ void Algorithm::createEPI()
 	}
 	if(computePosition_==VERTICAL)
 	{
-		createVerticalEPI(1, 0);
+		createVerticalEPI(1, 1);
 	}
 	cout<<"Generation ended"<<endl;		
 }
@@ -188,7 +189,7 @@ void Algorithm::createVerticalEPI(int groupID, char mul)
 	for(int i=0;i<imageColumns_;i++)
 	{
 		string file=dir_+to_string(groupID)+baseName_+"_"+to_string(i)+"_0.txt";
-		string message=to_string(imageRows_)+"\n"+to_string(vImages_);
+		string message=to_string(vImages_)+"\n"+to_string(imageRows_);
 		fileIO::saveLine<string>(file, message);
 	}
 	double* temp=new double[imageRows_];

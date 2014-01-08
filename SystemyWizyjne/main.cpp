@@ -84,9 +84,12 @@ int main(int argc, const char* argv[])
 	else
 	{
 		cdl.compute("D:\\car\\config.txt", 7800);
-		cdl.visualize("D:\\car\\car_final_145.txt", "D:\\other\\car.jpg");
-	}
+		cdl.visualize("D:\\car\\car_final_145.txt", "D:\\other\\car.jpg", 500, 20000);
+		//cdl.compute("D:\\car2\\config.txt", 7800);
+		//cdl.visualize("D:\\car2\\car_image_4_0.txt", "D:\\other\\car2.jpg", 500, 20000);
 		//cdl.compute("D:\\bikes\\config.txt", 7800);
+		//cdl.visualize("D:\\bikes\\bikes_image_25_1.txt", "D:\\other\\bikesWithoutGaussian.jpg", 1000, 15000);
+	}
 	system("pause");
 }
 

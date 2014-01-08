@@ -9,6 +9,7 @@ vector<double> selector::select(std::string file, double min, double max, double
 
 vector<double> selector::select(char* file, double min, double max, double dist)
 {
+	cout<<"Selecting point from image"<<endl;
 	vector<double> result;
 	int rows;
 	int cols;
@@ -28,5 +29,6 @@ vector<double> selector::select(char* file, double min, double max, double dist)
 			}
 		}
 	utils::memFree(tab, rows);
+	cout<<"Selection done"<<endl;
 	return result;
 }
