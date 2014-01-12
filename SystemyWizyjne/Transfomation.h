@@ -7,6 +7,7 @@
 
 namespace transformation
 {
+	void moveToStart(std::vector<double> in);//moves object so that is
 	void transform(std::vector<double> in, double xAngle, double yAngle=0.0, double zAngle=0.0);
 	void transform(double* x, double* y, double* z, double xAngle, double yAngle, double zAngle);
 	inline double toRads(double degrees)

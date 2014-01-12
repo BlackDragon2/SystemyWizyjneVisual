@@ -17,7 +17,7 @@ public:
 private:
 static const int GAUSSIAN_ROWS=3;
 static const int GAUSSIAN_COLUMNS=3;
-static const GradientMask MASKX=GradientMask::SCHARRX;
-static const GradientMask MASKY=GradientMask::SCHARRY;
+static const GradientMask MASKX=GradientMask::STANDARDX;
+static const GradientMask MASKY=GradientMask::STANDARDY;
 };
 

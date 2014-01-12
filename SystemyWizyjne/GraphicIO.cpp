@@ -161,10 +161,10 @@ double** graphicIO::getImageInArray(cv::Mat image, int &rows, int &columns)
 	for(int i=0; i<image.rows; i++)
 	{
 		for(int j=0; j<image.cols; j++)
-		{
-			result[i][j]=image.data[image.step[0]*i + image.step[1]* j + 0]<<16;
-			result[i][j]+=image.data[image.step[0]*i + image.step[1]* j + 1]<<8;
-			result[i][j]+=image.data[image.step[0]*i + image.step[1]* j + 2];			
+		{result[i][j]=image.data[image.step[0]*i + image.step[1]* j + 0];
+			//result[i][j]=image.data[image.step[0]*i + image.step[1]* j + 0]<<16;
+			//result[i][j]+=image.data[image.step[0]*i + image.step[1]* j + 1]<<8;
+			//result[i][j]+=image.data[image.step[0]*i + image.step[1]* j + 2];	
 		}
 	}
 	return result;

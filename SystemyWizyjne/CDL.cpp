@@ -136,32 +136,39 @@ void CDL::transformH(double focal, int groupID)
 		utils::memFree(pixels, epi.getRows());
 		utils::memFree(tempPixels, epi.getRows());
 
-		double** xx=graphicUtils::pixelMultiply(gradientX, gradientX, epi.getRows(), epi.getColumns());
-		double** xy=graphicUtils::pixelMultiply(gradientX, gradientY, epi.getRows(), epi.getColumns());
-		double** yy=graphicUtils::pixelMultiply(gradientY, gradientY, epi.getRows(), epi.getColumns());
+		//double** xx=graphicUtils::pixelMultiply(gradientX, gradientX, epi.getRows(), epi.getColumns());
+		//double** xy=graphicUtils::pixelMultiply(gradientX, gradientY, epi.getRows(), epi.getColumns());
+		//double** yy=graphicUtils::pixelMultiply(gradientY, gradientY, epi.getRows(), epi.getColumns());
 
-		utils::memFree(gradientX, epi.getRows());
-		utils::memFree(gradientY, epi.getRows());
-			
-		Jxx=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, xx, epi.getRows(), epi.getColumns());
-		Jxy=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, xy, epi.getRows(), epi.getColumns());
-		Jyy=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, yy, epi.getRows(), epi.getColumns());
-
-		utils::memFree(xx, epi.getRows());
-		utils::memFree(xy, epi.getRows());
-		utils::memFree(yy, epi.getRows());
+		Jxx=graphicUtils::pixelMultiply(gradientX, gradientX, epi.getRows(), epi.getColumns());
+		Jxy=graphicUtils::pixelMultiply(gradientX, gradientY, epi.getRows(), epi.getColumns());
+		Jyy=graphicUtils::pixelMultiply(gradientY, gradientY, epi.getRows(), epi.getColumns());
+		//Jxx=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, xx, epi.getRows(), epi.getColumns());
+		//Jxy=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, xy, epi.getRows(), epi.getColumns());
+		//Jyy=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, yy, epi.getRows(), epi.getColumns());
 
 		//equation(5)
 		double** sub=graphicUtils::pixelSubstract(Jyy, Jxx, epi.getRows(), epi.getColumns());
 		double** mul=graphicUtils::pixelMultiply(2.0, Jxy, epi.getRows(), epi.getColumns());
-		double** arctan=mathUtils::arctan(mul, sub, epi.getRows(), epi.getColumns());
+		double** arctan=mathUtils::arctan(sub, mul, epi.getRows(), epi.getColumns());
 		double** phi=graphicUtils::pixelMultiply(0.5, arctan, epi.getRows(), epi.getColumns());
 		//equation(7)
+		for(int p=0;p<1;p++)
+		{
+			double** temp=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, phi, epi.getRows(), epi.getColumns());
+			utils::memFree(phi,epi.getRows());
+			phi=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, temp, epi.getRows(), epi.getColumns());
+			utils::memFree(temp,epi.getRows());
+		}
 		double** sum=graphicUtils::pixelAdd(Jxx, Jyy, epi.getRows(), epi.getColumns());
-
+		utils::memFree(gradientX, epi.getRows());
+		utils::memFree(gradientY, epi.getRows());
 		utils::memFree(Jxx, epi.getRows());
 		utils::memFree(Jxy, epi.getRows());
 		utils::memFree(Jyy, epi.getRows());
+		//utils::memFree(xx, epi.getRows());
+		//utils::memFree(xy, epi.getRows());
+		//utils::memFree(yy, epi.getRows());
 
 		double** sumQuater=graphicUtils::pixelMultiply(sum, sum, epi.getRows(), epi.getColumns());
 
@@ -174,22 +181,7 @@ void CDL::transformH(double focal, int groupID)
 		for(int k=0;k<epi.getRows();k++)
 		{			
 			for(int j=0;j<epi.getColumns();j++)
-			{
-				if(phi[k][j]<0)
-					phi[k][j]=-phi[k][j];
-				if(phi[k][j]==0)
-				{
-					if(j>0)
-						phi[k][j]=phi[k][j-1];
-					else
-					{
-						int l=1;
-						while(l<epi.getColumns()&&!(phi[k][j]=phi[k][j+l]))
-							l++;
-					}
-				}
-				message[j]=focal/tan(phi[k][j]);
-			}
+				message[j]=focal*tan(phi[k][j]);
 			string file=getDir()+getBaseName()+"_image_"+to_string(k+(groupID-1)*getHImages())+"_1.txt";
 			fileIO::saveLine(file, message, epi.getColumns());
 			file=getDir()+getBaseName()+"_r_"+to_string(k+(groupID-1)*getHImages())+"_1.txt";
@@ -225,67 +217,58 @@ void CDL::transformV(double focal, int groupID)
 		//from [0-255] range to [0-1]
 		double** tempPixels=graphicUtils::toGrayScale(epi.getPixels(), epi.getRows(), epi.getColumns(), GrayMethod::LIGHTNESS);
 		double** pixels=graphicUtils::pixelMultiply(1.0/255.0, tempPixels, epi.getRows(), epi.getColumns()); 
-	
 		double** gradientX=graphicUtils::gradient(MASKX, pixels, epi.getRows(), epi.getColumns());
 		double** gradientY=graphicUtils::gradient(MASKY, pixels, epi.getRows(), epi.getColumns());
 
 		utils::memFree(pixels, epi.getRows());
 		utils::memFree(tempPixels, epi.getRows());
 
-		double** xx=graphicUtils::pixelMultiply(gradientX, gradientX, epi.getRows(), epi.getColumns());
-		double** xy=graphicUtils::pixelMultiply(gradientX, gradientY, epi.getRows(), epi.getColumns());
-		double** yy=graphicUtils::pixelMultiply(gradientY, gradientY, epi.getRows(), epi.getColumns());
+		//double** xx=graphicUtils::pixelMultiply(gradientX, gradientX, epi.getRows(), epi.getColumns());
+		//double** xy=graphicUtils::pixelMultiply(gradientX, gradientY, epi.getRows(), epi.getColumns());
+		//double** yy=graphicUtils::pixelMultiply(gradientY, gradientY, epi.getRows(), epi.getColumns());
 
-		utils::memFree(gradientX, epi.getRows());
-		utils::memFree(gradientY, epi.getRows());
-			
-		Jxx=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, xx, epi.getRows(), epi.getColumns());
-		Jxy=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, xy, epi.getRows(), epi.getColumns());
-		Jyy=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, yy, epi.getRows(), epi.getColumns());
-
-		utils::memFree(xx, epi.getRows());
-		utils::memFree(xy, epi.getRows());
-		utils::memFree(yy, epi.getRows());
+		Jxx=graphicUtils::pixelMultiply(gradientX, gradientX, epi.getRows(), epi.getColumns());
+		Jxy=graphicUtils::pixelMultiply(gradientX, gradientY, epi.getRows(), epi.getColumns());
+		Jyy=graphicUtils::pixelMultiply(gradientY, gradientY, epi.getRows(), epi.getColumns());
+		//Jxx=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, xx, epi.getRows(), epi.getColumns());
+		//Jxy=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, xy, epi.getRows(), epi.getColumns());
+		//Jyy=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, yy, epi.getRows(), epi.getColumns());
 
 		//equation(5)
 		double** sub=graphicUtils::pixelSubstract(Jyy, Jxx, epi.getRows(), epi.getColumns());
 		double** mul=graphicUtils::pixelMultiply(2.0, Jxy, epi.getRows(), epi.getColumns());
-		double** arctan=mathUtils::arctan(mul, sub, epi.getRows(), epi.getColumns());
+		double** arctan=mathUtils::arctan(sub, mul, epi.getRows(), epi.getColumns());
 		double** phi=graphicUtils::pixelMultiply(0.5, arctan, epi.getRows(), epi.getColumns());
 		//equation(7)
+		for(int p=0;p<1;p++)
+		{
+			double** temp=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, phi, epi.getRows(), epi.getColumns());
+			utils::memFree(phi,epi.getRows());
+			phi=graphicUtils::convolution(gaussian, GAUSSIAN_ROWS, GAUSSIAN_COLUMNS, temp, epi.getRows(), epi.getColumns());
+			utils::memFree(temp,epi.getRows());
+		}
 		double** sum=graphicUtils::pixelAdd(Jxx, Jyy, epi.getRows(), epi.getColumns());
-
+		utils::memFree(gradientX, epi.getRows());
+		utils::memFree(gradientY, epi.getRows());
 		utils::memFree(Jxx, epi.getRows());
 		utils::memFree(Jxy, epi.getRows());
 		utils::memFree(Jyy, epi.getRows());
+		//utils::memFree(xx, epi.getRows());
+		//utils::memFree(xy, epi.getRows());
+		//utils::memFree(yy, epi.getRows());
 
 		double** sumQuater=graphicUtils::pixelMultiply(sum, sum, epi.getRows(), epi.getColumns());
 
 		double** subQuater=graphicUtils::pixelMultiply(sub, sub, epi.getRows(), epi.getColumns());
 		double** mulQuater=graphicUtils::pixelMultiply(mul, mul, epi.getRows(), epi.getColumns());
-		double** subPlusMul=graphicUtils::pixelAdd(subQuater, mulQuater, epi.getRows(), epi.getColumns());
 
+		double** subPlusMul=graphicUtils::pixelAdd(subQuater, mulQuater, epi.getRows(), epi.getColumns());
 		r=graphicUtils::pixelDivide(subPlusMul, sumQuater, epi.getRows(), epi.getColumns());
 		double* message=new double[epi.getColumns()];
 		for(int k=0;k<epi.getRows();k++)
 		{			
 			for(int j=0;j<epi.getColumns();j++)
-			{
-				if(phi[k][j]<0)
-					phi[k][j]=-phi[k][j];
-				if(phi[k][j]==0)
-				{
-					if(j>0)
-						phi[k][j]=phi[k][j-1];
-					else
-					{
-						int l=1;
-						while(l<epi.getColumns()&&!(phi[k][j]=phi[k][j+l]))
-							l++;
-					}
-				}
-				message[j]=focal/tan(phi[k][j]);
-			}
+				message[j]=focal*tan(phi[k][j]);
 			string file=getDir()+getBaseName()+"_image_"+to_string(k+(groupID-1)*getHImages())+"_0.txt";
 			fileIO::saveLine(file, message, epi.getColumns());
 			file=getDir()+getBaseName()+"_r_"+to_string(k+(groupID-1)*getHImages())+"_0.txt";

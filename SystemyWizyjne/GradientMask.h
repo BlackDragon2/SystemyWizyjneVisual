@@ -1,7 +1,7 @@
 #pragma once
 #include "Utils.h"
 
-enum GradientMask{SOBELX, PREWITTX, ROBERTSX, SCHARRX, SOBELY, PREWITTY, ROBERTSY, SCHARRY};
+enum GradientMask{SOBELX, PREWITTX, ROBERTSX, SCHARRX, SOBELY, PREWITTY, ROBERTSY, SCHARRY, STANDARDX, STANDARDY};
 
 static double** getGradientMask(GradientMask mask)
 {
@@ -95,7 +95,29 @@ static double** getGradientMask(GradientMask mask)
 			result[2][0]=3;
 			result[2][1]=10;
 			result[2][2]=3;
-		break;		
+		break;
+			case STANDARDX:
+			result[0][0]=0;
+			result[0][1]=0;
+			result[0][2]=0;
+			result[1][0]=-1;
+			result[1][1]=0;
+			result[1][2]=1;
+			result[2][0]=0;
+			result[2][1]=0;
+			result[2][2]=0;
+		break;
+		case STANDARDY:
+			result[0][0]=0;
+			result[0][1]=-1;
+			result[0][2]=0;
+			result[1][0]=0;
+			result[1][1]=0;
+			result[1][2]=0;
+			result[2][0]=0;
+			result[2][1]=1;
+			result[2][2]=0;
+		break;	
 	}
 	return result;
 }
